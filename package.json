@@ -11,6 +11,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.93.1",
     "lucide-react": "^0.563.0",
+    "chart.js": "^4.4.0",
+    "react-chartjs-2": "^5.2.0",
     "next": "16.1.4",
     "react": "19.2.3",
     "react-dom": "19.2.3"

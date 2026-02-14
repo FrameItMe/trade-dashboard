@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import Link from 'next/link'
 import { ArrowUp, ArrowDown, Activity, History, Wallet, Zap } from 'lucide-react'
 
 // Types
@@ -22,11 +23,15 @@ interface AccountStats {
   equity: number
 }
 
-// Config Supabase
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY!
-)
+// Config Supabase (guarded: avoid crash when env vars missing)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
+let supabase = null as ReturnType<typeof createClient> | null
+if (supabaseUrl && supabaseKey) {
+  supabase = createClient(supabaseUrl, supabaseKey)
+} else {
+  console.warn('Supabase env missing: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_KEY')
+}
 
 export default function Dashboard() {
   const [trades, setTrades] = useState<Trade[]>([])
@@ -43,6 +48,8 @@ export default function Dashboard() {
     : '0'
 
   useEffect(() => {
+    if (!supabase) return
+
     fetchData()
 
     // 1. ฟังการเปลี่ยนแปลงของ Trades
@@ -102,7 +109,10 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold flex items-center gap-2 text-white">
             <Activity className="text-yellow-500" /> Gold AI Trader
           </h1>
-          <div className="flex gap-4 text-sm">
+          <div className="flex items-center gap-4 text-sm">
+            <Link href="/analysis" className="bg-gray-800 px-4 py-2 rounded-lg border border-gray-700 hover:bg-gray-700 flex items-center">
+              <span className="text-gray-400">Analysis</span>
+            </Link>
              <div className="bg-gray-800 px-4 py-2 rounded-lg border border-gray-700">
                 <span className="text-gray-400">Profit: </span>
                 <span className={`font-bold ${totalClosedProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
